@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using DG.Tweening;
 using System;
 
 public class HoleMovement : MonoBehaviour
@@ -13,6 +14,7 @@ public class HoleMovement : MonoBehaviour
     [SerializeField] Vector2 moveLimits;
     [SerializeField] float radius;
     [SerializeField] Transform holeCenter;
+    [SerializeField] Transform rotatingCircle;
 
     [Space()]
     [SerializeField] float moveSpeed;
@@ -28,6 +30,8 @@ public class HoleMovement : MonoBehaviour
 
     private void Start()
     {
+        RotateCircle();
+
         Game.isGameOver = false;
         Game.isMoving = false;
 
@@ -40,8 +44,19 @@ public class HoleMovement : MonoBehaviour
         FindHoleVertices();
     }
 
+    private void RotateCircle()
+    {
+        rotatingCircle
+            .DORotate(new Vector3(90f, 0f, -90f), 0.2f)
+            .SetEase(Ease.Linear)
+            .From(new Vector3(90f, 0f, 0f))
+            .SetLoops(-1, LoopType.Incremental);
+    }
+
     private void Update()
     {
+#if UNITY_EDITOR
+        //Mouse move
         Game.isMoving = Input.GetMouseButton(0);
 
         if (!Game.isGameOver && Game.isMoving)
@@ -52,6 +67,19 @@ public class HoleMovement : MonoBehaviour
             //Update hole vertices
             UpdateHoleVerticesPosition();
         }
+#else
+        //Mobile touch move
+        Game.isMoving = Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved;
+
+        if (!Game.isGameOver && Game.isMoving)
+        {
+            //Move hole center
+            MoveHole();
+
+            //Update hole vertices
+            UpdateHoleVerticesPosition();
+        }
+#endif
     }
 
     private void MoveHole()

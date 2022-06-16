@@ -1,5 +1,6 @@
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DG.Tweening;
 using UnityEngine;
 using TMPro;
 
@@ -28,8 +29,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI currentLevelText;
     [SerializeField] Image progressFillImage;
 
+    [Space]
+    [SerializeField] TextMeshProUGUI levelCompleteText;
+
+    [Space]
+    [SerializeField] Image fadePanel;
+
+
     private void Start()
     {
+        FadeAtStart();
+
         progressFillImage.fillAmount = 0;
         SetLevelProgressText();
     }
@@ -45,7 +55,17 @@ public class UIManager : MonoBehaviour
     public void UpdateLevelProgress()
     {
         float val = 1f - (float)Level.Instance.objectsInScene / Level.Instance.totalObjects;
-        progressFillImage.fillAmount = val;
+        progressFillImage.DOFillAmount(val, 0.4f);
+    }
+
+    public void ShowLevelCompleteUI()
+    {
+        levelCompleteText.DOFade(1f, 0.6f).From(0f);
+    }
+
+    public void FadeAtStart()
+    {
+        fadePanel.DOFade(0f, 1.3f).From(1f);
     }
 
 }
