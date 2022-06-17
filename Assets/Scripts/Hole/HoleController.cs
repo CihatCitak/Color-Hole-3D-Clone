@@ -4,6 +4,8 @@ using Inputs;
 
 public class HoleController : MonoBehaviour
 {
+    [SerializeField] Transform holeCenter;
+
     [Header("Dependencies"), Space()]
     [SerializeField] HoleData holeData;
     [SerializeField] InputSettings input;
@@ -12,14 +14,17 @@ public class HoleController : MonoBehaviour
     [SerializeField] MeshFilter meshFilter;
     [SerializeField] MeshCollider meshCollider;
 
-    [Header("Hole vertices radius")]
-    [SerializeField] Vector2 moveLimits;
-    [SerializeField] Transform holeCenter;
-
     private Mesh mesh;
     private List<int> holeVertices = new List<int>();
     private List<Vector3> offsets = new List<Vector3>();
     private int holeVerticesCount;
+
+    #region Ground Limit Values
+    private float XAxisMinLimit() => Ground.Instance.xLeftLimit.position.x;
+    private float XAxisMaxLimit() => Ground.Instance.xRightLimit.position.x;
+    private float ZAxisMinLimit() => Ground.Instance.zDownLimit.position.z;
+    private float ZAxisMaxLimit() => Ground.Instance.zUpLimit.position.z;
+    #endregion
 
     private void Start()
     {
@@ -62,9 +67,9 @@ public class HoleController : MonoBehaviour
     private Vector3 ClampHolePosition(Vector3 holePos)
     {
         return new Vector3(
-            Mathf.Clamp(holePos.x, -moveLimits.x, moveLimits.x),
+            Mathf.Clamp(holePos.x, XAxisMinLimit(), XAxisMaxLimit()),
             holePos.y,
-            Mathf.Clamp(holePos.z, -moveLimits.y, moveLimits.y));
+            Mathf.Clamp(holePos.z, ZAxisMinLimit(), ZAxisMaxLimit()));
     }
     #endregion
 
