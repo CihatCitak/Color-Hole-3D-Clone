@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using DG.Tweening;
-using System;
+using Inputs;
 
 public class HoleMovement : MonoBehaviour
 {
@@ -12,31 +11,23 @@ public class HoleMovement : MonoBehaviour
 
     [Header("Hole vertices radius")]
     [SerializeField] Vector2 moveLimits;
-    [SerializeField] float radius;
     [SerializeField] Transform holeCenter;
-    [SerializeField] Transform rotatingCircle;
 
+    //HoleData
     [Space()]
     [SerializeField] float moveSpeed;
+    [SerializeField] float radius;
+    [SerializeField] InputSettings input;
 
-    Mesh mesh;
-    List<int> holeVertices;
-    List<Vector3> offsets;
-    int holeVerticesCount;
-
-
-    float x, y;
-    Vector3 touch, targetPos;
+    private Mesh mesh;
+    private List<int> holeVertices = new List<int>();
+    private List<Vector3> offsets = new List<Vector3>();
+    private int holeVerticesCount;
 
     private void Start()
     {
-        RotateCircle();
-
         Game.isGameOver = false;
         Game.isMoving = false;
-
-        holeVertices = new List<int>();
-        offsets = new List<Vector3>();
 
         mesh = meshFilter.mesh;
 
@@ -44,63 +35,46 @@ public class HoleMovement : MonoBehaviour
         FindHoleVertices();
     }
 
-    private void RotateCircle()
-    {
-        rotatingCircle
-            .DORotate(new Vector3(90f, 0f, -90f), 0.2f)
-            .SetEase(Ease.Linear)
-            .From(new Vector3(90f, 0f, 0f))
-            .SetLoops(-1, LoopType.Incremental);
-    }
-
     private void Update()
     {
-#if UNITY_EDITOR
         //Mouse move
         Game.isMoving = Input.GetMouseButton(0);
 
         if (!Game.isGameOver && Game.isMoving)
         {
             //Move hole center
-            MoveHole();
+            HandleHoleMovement();
 
             //Update hole vertices
             UpdateHoleVerticesPosition();
         }
-#else
-        //Mobile touch move
-        Game.isMoving = Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved;
-
-        if (!Game.isGameOver && Game.isMoving)
-        {
-            //Move hole center
-            MoveHole();
-
-            //Update hole vertices
-            UpdateHoleVerticesPosition();
-        }
-#endif
     }
 
-    private void MoveHole()
+    #region Hole Center Movement
+    private void HandleHoleMovement()
     {
-        x = Input.GetAxis("Mouse X");
-        y = Input.GetAxis("Mouse Y");
-
-        touch = Vector3.Lerp(
-            holeCenter.position,
-            holeCenter.position + new Vector3(x, 0f, y),
-            moveSpeed * Time.deltaTime
-        );
-
-        targetPos = new Vector3(
-            Mathf.Clamp(touch.x, -moveLimits.x, moveLimits.x),
-            touch.y,
-            Mathf.Clamp(touch.z, -moveLimits.y, moveLimits.y)
-        );
-
-        holeCenter.position = targetPos;
+        holeCenter.position = ClampHolePosition(PositionLerp(holeCenter.position, CalculateDirection()));
     }
+
+    private Vector3 CalculateDirection()
+    {
+        return Vector3.right * input.InputDrag.x + Vector3.forward * input.InputDrag.y;
+    }
+
+    private Vector3 PositionLerp(Vector3 holePos, Vector3 direction)
+    {
+        return Vector3.Lerp(holePos, holePos + direction, moveSpeed * Time.deltaTime);
+    }
+
+    private Vector3 ClampHolePosition(Vector3 holePos)
+    {
+        return new Vector3(
+            Mathf.Clamp(holePos.x, -moveLimits.x, moveLimits.x),
+            holePos.y,
+            Mathf.Clamp(holePos.z, -moveLimits.y, moveLimits.y));
+    }
+    #endregion
+
 
     private void UpdateHoleVerticesPosition()
     {
@@ -110,7 +84,11 @@ public class HoleMovement : MonoBehaviour
             vertices[holeVertices[i]] = holeCenter.position + offsets[i];
         }
 
-        //update mesh
+        UpdateMesh(vertices);
+    }
+
+    private void UpdateMesh(Vector3[] vertices)
+    {
         mesh.vertices = vertices;
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
