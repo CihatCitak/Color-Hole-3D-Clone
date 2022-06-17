@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using Inputs;
 
-public class HoleMovement : MonoBehaviour
+public class HoleController : MonoBehaviour
 {
+    [Header("Dependencies"), Space()]
+    [SerializeField] HoleData holeData;
+    [SerializeField] InputSettings input;
+
     [Header("Hole mesh")]
     [SerializeField] MeshFilter meshFilter;
     [SerializeField] MeshCollider meshCollider;
@@ -12,12 +15,6 @@ public class HoleMovement : MonoBehaviour
     [Header("Hole vertices radius")]
     [SerializeField] Vector2 moveLimits;
     [SerializeField] Transform holeCenter;
-
-    //HoleData
-    [Space()]
-    [SerializeField] float moveSpeed;
-    [SerializeField] float radius;
-    [SerializeField] InputSettings input;
 
     private Mesh mesh;
     private List<int> holeVertices = new List<int>();
@@ -31,21 +28,17 @@ public class HoleMovement : MonoBehaviour
 
         mesh = meshFilter.mesh;
 
-        //Find Hole vertices on the mesh
         FindHoleVertices();
     }
 
     private void Update()
     {
-        //Mouse move
         Game.isMoving = Input.GetMouseButton(0);
 
         if (!Game.isGameOver && Game.isMoving)
         {
-            //Move hole center
             HandleHoleMovement();
 
-            //Update hole vertices
             UpdateHoleVerticesPosition();
         }
     }
@@ -63,7 +56,7 @@ public class HoleMovement : MonoBehaviour
 
     private Vector3 PositionLerp(Vector3 holePos, Vector3 direction)
     {
-        return Vector3.Lerp(holePos, holePos + direction, moveSpeed * Time.deltaTime);
+        return Vector3.Lerp(holePos, holePos + direction, holeData.MoveSpeed * Time.deltaTime);
     }
 
     private Vector3 ClampHolePosition(Vector3 holePos)
@@ -94,14 +87,13 @@ public class HoleMovement : MonoBehaviour
         meshCollider.sharedMesh = mesh;
     }
 
-
     private void FindHoleVertices()
     {
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
             float distance = Vector3.Distance(holeCenter.position, mesh.vertices[i]);
 
-            if (distance < radius)
+            if (distance < holeData.Radius)
             {
                 holeVertices.Add(i);
                 offsets.Add(mesh.vertices[i] - holeCenter.position);
@@ -114,6 +106,6 @@ public class HoleMovement : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(holeCenter.position, radius);
+        Gizmos.DrawSphere(holeCenter.position, holeData.Radius);
     }
 }
