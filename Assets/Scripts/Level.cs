@@ -1,8 +1,9 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
-public class Level : MonoBehaviour
+public class Level : MonoBehaviour, IObjectSwallowed, IGameWin
 {
     #region Singleton
     public static Level Instance { get => instance; }
@@ -71,13 +72,15 @@ public class Level : MonoBehaviour
         objectsInScene = totalObjects;
     }
 
-    public void PlayWinFx()
+    private void PlayWinFx()
     {
         winFx.Play();
     }
 
-    public void LoadNextLevel()
+    private IEnumerator LoadNextLevel(float duration)
     {
+        yield return new WaitForSeconds(duration);
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
@@ -86,6 +89,38 @@ public class Level : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    #region Event
+    private void OnEnable()
+    {
+        EventManager.OnObjectSwallowed += OnObjectSwallowed;
+        EventManager.OnGameWin += OnGameWin;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnObjectSwallowed -= OnObjectSwallowed;
+        EventManager.OnGameWin -= OnGameWin;
+    }
+
+    public void OnObjectSwallowed()
+    {
+        objectsInScene--;
+
+        if (objectsInScene == 0)
+        {
+            EventManager.InvokeOnGameWin();
+        }
+    }
+
+    public void OnGameWin()
+    {
+        PlayWinFx();
+
+        StartCoroutine(LoadNextLevel(2f));
+    }
+    #endregion
+
+    #region Color Issues
     void UpdateLevelColors()
     {
         groundMaterial.color = groundColor;
@@ -105,4 +140,5 @@ public class Level : MonoBehaviour
     {
         UpdateLevelColors();
     }
+    #endregion
 }

@@ -1,46 +1,29 @@
-using UnityEngine.SceneManagement;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 public class UndergroundCollision : MonoBehaviour
 {
+    [Header("Tags")]
+    [SerializeField] string objectTag;
+    [SerializeField] string obstacleTag;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!Game.isGameOver)
+        if (GameHandler.Instance.GameState == GameStates.START)
         {
-            string tag = other.tag;
-
-            if (tag.Equals("Object"))
+            if (other.CompareTag(objectTag))
             {
-                Level.Instance.objectsInScene--;
-                UIManager.Instance.UpdateLevelProgress();
+                EventManager.InvokeOnObjectSwallowed();
 
                 Magnet.Instance.RemoveFromMagnetField(other.attachedRigidbody);
-
                 Destroy(other.gameObject);
-
-                if (Level.Instance.objectsInScene == 0)
-                {
-                    UIManager.Instance.ShowLevelCompleteUI();
-                    Level.Instance.PlayWinFx();
-
-                    Invoke("NextLevel", 2f);
-                }
             }
 
-            if (tag.Equals("Obstacle"))
+            if (other.CompareTag(obstacleTag))
             {
-                Game.isGameOver = true;
-                Camera.main.transform
-                    .DOShakePosition(1f, 0.2f, 20, 90f)
-                    .OnComplete(() => Level.Instance.RestartLevel());
-
+                EventManager.InvokeOnGameLose();
             }
         }
-    }
-
-    private void NextLevel()
-    {
-        Level.Instance.LoadNextLevel();
     }
 }

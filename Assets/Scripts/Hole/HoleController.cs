@@ -28,9 +28,6 @@ public class HoleController : MonoBehaviour
 
     private void Start()
     {
-        Game.isGameOver = false;
-        Game.isMoving = false;
-
         mesh = meshFilter.mesh;
 
         FindHoleVertices();
@@ -38,9 +35,7 @@ public class HoleController : MonoBehaviour
 
     private void Update()
     {
-        Game.isMoving = Input.GetMouseButton(0);
-
-        if (!Game.isGameOver && Game.isMoving)
+        if (GameHandler.Instance.GameState == GameStates.START)
         {
             HandleHoleMovement();
 

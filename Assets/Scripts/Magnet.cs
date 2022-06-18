@@ -22,11 +22,15 @@ public class Magnet : MonoBehaviour
     #endregion
 
     [SerializeField] float magnetForce;
+    [SerializeField] string objectTag = "Object";
+    [SerializeField] string obstacleTag = "Obstacle";
 
-    List<Rigidbody> affectedRigidbodies = new List<Rigidbody>();
-    Transform magnet;
+    private bool IsGameContinue() => GameHandler.Instance.IsGameContinue();
+    private bool IsObjectsCollision(Collider other) => (other.CompareTag(objectTag) || other.CompareTag(obstacleTag));
 
-    // Start is called before the first frame update
+    private List<Rigidbody> affectedRigidbodies = new List<Rigidbody>();
+    private Transform magnet;
+
     void Start()
     {
         magnet = transform;
@@ -35,7 +39,7 @@ public class Magnet : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!Game.isGameOver && Game.isMoving)
+        if (IsGameContinue())
         {
             foreach (Rigidbody rb in affectedRigidbodies)
             {
@@ -46,9 +50,7 @@ public class Magnet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        string tag = other.tag;
-
-        if(!Game.isGameOver && (tag.Equals("Obstacle") || tag.Equals("Object")))
+        if (IsGameContinue() && IsObjectsCollision(other))
         {
             AddToMagnetField(other.attachedRigidbody);
         }
@@ -56,9 +58,7 @@ public class Magnet : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        string tag = other.tag;
-
-        if (!Game.isGameOver && (tag.Equals("Obstacle") || tag.Equals("Object")))
+        if (IsGameContinue() && IsObjectsCollision(other))
         {
             RemoveFromMagnetField(other.attachedRigidbody);
         }
