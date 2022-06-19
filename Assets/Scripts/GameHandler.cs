@@ -4,7 +4,6 @@ public class GameHandler : MonoBehaviour, IGameWin, IGameLose
 {
     #region Singleton
     public static GameHandler Instance { get => instance; }
-
     private static GameHandler instance;
 
     private void Awake()
@@ -23,6 +22,9 @@ public class GameHandler : MonoBehaviour, IGameWin, IGameLose
     public GameStates GameState { get => gameState; }
     private GameStates gameState;
 
+    [Range(0f, 1f)]
+    private float levelProgress;
+
     private void Start()
     {
         gameState = GameStates.START;
@@ -34,6 +36,16 @@ public class GameHandler : MonoBehaviour, IGameWin, IGameLose
             return true;
         else
             return false;
+    }
+
+    public void SetLevelProgress(float progress)
+    {
+        levelProgress = progress;
+    }
+
+    public float GetLevelProgress()
+    {
+        return levelProgress;
     }
 
     #region Events

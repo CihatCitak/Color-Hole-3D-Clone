@@ -4,73 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(SphereCollider))]
 public class Magnet : MonoBehaviour
 {
-    #region Singleton
-    public static Magnet Instance { get => instance; }
-    private static Magnet instance;
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-    #endregion
-
     [SerializeField] float magnetForce;
-    [SerializeField] string objectTag = "Object";
-    [SerializeField] string obstacleTag = "Obstacle";
+    [SerializeField] TagDatas tagDatas;
 
     private bool IsGameContinue() => GameHandler.Instance.IsGameContinue();
-    private bool IsObjectsCollision(Collider other) => (other.CompareTag(objectTag) || other.CompareTag(obstacleTag));
+    private bool IsObjectsCollision(Collider other) => (other.CompareTag(tagDatas.ObjectTag) || other.CompareTag(tagDatas.ObstacleTag));
 
-    private List<Rigidbody> affectedRigidbodies = new List<Rigidbody>();
-    private Transform magnet;
-
-    void Start()
-    {
-        magnet = transform;
-        affectedRigidbodies.Clear();
-    }
-
-    private void FixedUpdate()
-    {
-        if (IsGameContinue())
-        {
-            foreach (Rigidbody rb in affectedRigidbodies)
-            {
-                rb.AddForce((magnet.position - rb.position) * magnetForce * Time.fixedDeltaTime);
-            }
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (IsGameContinue() && IsObjectsCollision(other))
         {
-            AddToMagnetField(other.attachedRigidbody);
+            var otherRb = other.attachedRigidbody.GetComponent<Rigidbody>();
+            otherRb.AddForce((transform.position - other.transform.position) * magnetForce * Time.fixedDeltaTime);
         }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (IsGameContinue() && IsObjectsCollision(other))
-        {
-            RemoveFromMagnetField(other.attachedRigidbody);
-        }
-    }
-
-    public void AddToMagnetField(Rigidbody rb)
-    {
-        affectedRigidbodies.Add(rb);
-    }
-
-    public void RemoveFromMagnetField(Rigidbody rb)
-    {
-        affectedRigidbodies.Remove(rb);
     }
 }

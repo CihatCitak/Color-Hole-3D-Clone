@@ -3,25 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class Level : MonoBehaviour, IObjectSwallowed, IGameWin
+[DefaultExecutionOrder(-10)]
+public class Level : MonoBehaviour, IObjectSwallowed, IGameWin, IGameLose
 {
-    #region Singleton
-    public static Level Instance { get => instance; }
-    private static Level instance;
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-    #endregion
-
     [SerializeField] ParticleSystem winFx;
 
     [Space]
@@ -84,9 +68,16 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
-    public void RestartLevel()
+    public IEnumerator RestartLevel(float duration)
     {
+        yield return new WaitForSeconds(duration);
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private float LevelProgressAmount()
+    {
+        return (float)objectsInScene / (float)totalObjects;
     }
 
     #region Event
@@ -94,17 +85,21 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin
     {
         EventManager.OnObjectSwallowed += OnObjectSwallowed;
         EventManager.OnGameWin += OnGameWin;
+        EventManager.OnGameLose += OnGameLose;
     }
 
     private void OnDisable()
     {
         EventManager.OnObjectSwallowed -= OnObjectSwallowed;
         EventManager.OnGameWin -= OnGameWin;
+        EventManager.OnGameLose -= OnGameLose;
     }
 
     public void OnObjectSwallowed()
     {
         objectsInScene--;
+
+        GameHandler.Instance.SetLevelProgress(LevelProgressAmount());
 
         if (objectsInScene == 0)
         {
@@ -117,6 +112,11 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin
         PlayWinFx();
 
         StartCoroutine(LoadNextLevel(2f));
+    }
+
+    public void OnGameLose()
+    {
+        StartCoroutine(RestartLevel(2f));
     }
     #endregion
 

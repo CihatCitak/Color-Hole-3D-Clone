@@ -4,23 +4,21 @@ using System.Collections;
 
 public class UndergroundCollision : MonoBehaviour
 {
-    [Header("Tags")]
-    [SerializeField] string objectTag;
-    [SerializeField] string obstacleTag;
+    [Header("Tag Data")]
+    [SerializeField] TagDatas tagDatas;
 
     private void OnTriggerEnter(Collider other)
     {
         if (GameHandler.Instance.GameState == GameStates.START)
         {
-            if (other.CompareTag(objectTag))
+            if (other.CompareTag(tagDatas.ObjectTag))
             {
                 EventManager.InvokeOnObjectSwallowed();
 
-                Magnet.Instance.RemoveFromMagnetField(other.attachedRigidbody);
                 Destroy(other.gameObject);
             }
 
-            if (other.CompareTag(obstacleTag))
+            if (other.CompareTag(tagDatas.ObstacleTag))
             {
                 EventManager.InvokeOnGameLose();
             }

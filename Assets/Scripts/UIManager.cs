@@ -6,23 +6,6 @@ using TMPro;
 
 public class UIManager : MonoBehaviour, IObjectSwallowed, IGameWin
 {
-    #region Singleton
-    public static UIManager Instance { get => instance; }
-    private static UIManager instance;
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-    #endregion
-
     [Header("Level Progress UI")]
     [SerializeField] int sceneOffset;
     [SerializeField] TextMeshProUGUI nextLevelText;
@@ -54,7 +37,7 @@ public class UIManager : MonoBehaviour, IObjectSwallowed, IGameWin
 
     private void UpdateLevelProgress()
     {
-        float val = 1f - (float)Level.Instance.objectsInScene / Level.Instance.totalObjects;
+        float val = 1f - GameHandler.Instance.GetLevelProgress();
         progressFillImage.DOFillAmount(val, 0.4f);
     }
 

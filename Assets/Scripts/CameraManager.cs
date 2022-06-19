@@ -15,8 +15,6 @@ public class CameraManager : MonoBehaviour, IGameLose
 
     public void OnGameLose()
     {
-        transform
-            .DOShakePosition(1f, 0.2f, 20, 90f)
-            .OnComplete(() => Level.Instance.RestartLevel());
+        transform.DOShakePosition(1f, 0.2f, 20, 90f);
     }
 }
