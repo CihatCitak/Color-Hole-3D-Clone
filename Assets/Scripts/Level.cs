@@ -39,11 +39,6 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin, IGameLose
     [Header("UI (progress)")]
     [SerializeField] Color progressFillColor;
 
-    [Header("Background")]
-    [SerializeField] Color cameraColor;
-    [SerializeField] Color fadeColor;
-
-
     void Start()
     {
         CountObjects();
@@ -65,7 +60,17 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin, IGameLose
     {
         yield return new WaitForSeconds(duration);
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        var totalLevelCount = SceneManager.sceneCountInBuildSettings;
+        var sceneBuildIndex = SceneManager.GetActiveScene().buildIndex;
+
+        if (sceneBuildIndex < totalLevelCount - 1)
+        {
+            SceneManager.LoadScene(sceneBuildIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
     public IEnumerator RestartLevel(float duration)
@@ -131,9 +136,6 @@ public class Level : MonoBehaviour, IObjectSwallowed, IGameWin, IGameLose
         objectMaterial.color = objectColor;
 
         progressFillImage.color = progressFillColor;
-
-        Camera.main.backgroundColor = cameraColor;
-        bgFadeSprite.color = fadeColor;
     }
 
     private void OnValidate()
