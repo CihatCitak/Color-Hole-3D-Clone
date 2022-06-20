@@ -630,11 +630,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 287539106}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!212 &288546120 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 4108320932770779266, guid: eb14dc5b6c4cb4f4c94d063eff2aa312, type: 3}
-  m_PrefabInstance: {fileID: 4108320932486467018}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &380894677
 GameObject:
   m_ObjectHideFlags: 0
@@ -1282,7 +1277,7 @@ MonoBehaviour:
   groundBorderSprite: {fileID: 187852483}
   groundSideSprite: {fileID: 1786620675}
   progressFillImage: {fileID: 1869514726}
-  bgFadeSprite: {fileID: 288546120}
+  bgFadeSprite: {fileID: 0}
   groundColor: {r: 0.9254902, g: 0.627451, b: 0, a: 1}
   bordersColor: {r: 1, g: 0.92941177, b: 0, a: 1}
   sideColor: {r: 0.7921569, g: 0.6431373, b: 0, a: 1}
@@ -8563,6 +8558,14 @@ PrefabInstance:
     - target: {fileID: 3873898110488072150, guid: eb14dc5b6c4cb4f4c94d063eff2aa312, type: 3}
       propertyPath: m_Name
       value: Ground
+      objectReference: {fileID: 0}
+    - target: {fileID: 4108320932770779267, guid: eb14dc5b6c4cb4f4c94d063eff2aa312, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 6.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 4108320932770779277, guid: eb14dc5b6c4cb4f4c94d063eff2aa312, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4506143219091936620, guid: eb14dc5b6c4cb4f4c94d063eff2aa312, type: 3}
       propertyPath: m_RootOrder
