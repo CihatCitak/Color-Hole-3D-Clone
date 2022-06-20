@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab41f558ffa313d43a6cc9ccfea42d3e, type: 3}
   m_Name: Hole Data
   m_EditorClassIdentifier: 
-  moveSpeed: 17.5
-  radius: 0.4
+  moveSpeed: 50
+  radius: 0.5
